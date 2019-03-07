@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class UserPrincipalFactory {
 
-    public static UserPrincipal createUserPrincipal(Map<String, Object> claims) {
+    public static UserPrincipal createUserPrincipal(String token,Map<String, Object> claims) {
 
         List<GrantedAuthority> authorities=new ArrayList<>();
 
@@ -21,7 +21,8 @@ public class UserPrincipalFactory {
         }
 
         Integer userId = Integer.valueOf(claims.get("userId").toString());
-        String loginName = claims.get("loginname").toString();
-        return new UserPrincipal(userId,loginName,authorities);
+        String givenName = claims.get("givenname").toString();
+        String surName = claims.get("surname").toString();
+        return new UserPrincipal(userId,token,givenName,surName,authorities);
     }
 }

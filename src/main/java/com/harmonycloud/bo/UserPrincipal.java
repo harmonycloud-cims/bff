@@ -1,26 +1,32 @@
 package com.harmonycloud.bo;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.Collection;
 import java.util.Objects;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class UserPrincipal implements UserDetails {
     private static final long serialVersionUID = 1L;
 
-    private Integer userId;
+    private Integer id;
 
-    private String loginName;
+    private String token;
 
+    private String givenName;
+
+    private String surName;
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Integer userId, String loginName, Collection<? extends GrantedAuthority> authorities) {
-        this.userId = userId;
-        this.loginName = loginName;
+    public UserPrincipal(Integer id,String token,String givenName,String surName,Collection<? extends GrantedAuthority> authorities) {
+        this.id = id;
+        this.token=token;
+        this.surName=surName;
+        this.givenName = givenName;
         this.authorities = authorities;
     }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -52,13 +58,13 @@ public class UserPrincipal implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserPrincipal that = (UserPrincipal) o;
-        return Objects.equals(userId, that.userId);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(userId);
+        return Objects.hash(id);
     }
 
 
@@ -70,6 +76,28 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getUsername() {
-        return loginName;
+        String username = givenName+","+surName;
+        return username;
     }
+
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+
+
 }
