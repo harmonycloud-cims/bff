@@ -112,10 +112,10 @@ public class BffService {
                 ClinicalNoteBo clinicalNoteBo = new ClinicalNoteBo(newClinicalNote, oldClinicalNote);
                 clinicalNoteResponse = syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo);
 
-                AttendingDiagnosisBo attendingDiagnosisBo = new AttendingDiagnosisBo(oldAttendingDiagnosisList, newAttendingDiagnosisList);
+                AttendingDiagnosisBo attendingDiagnosisBo = new AttendingDiagnosisBo(newAttendingDiagnosisList,oldAttendingDiagnosisList);
                 attendingResponse = syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo);
 
-                ChronicDiagnosisBo chronicDiagnosisBo = new ChronicDiagnosisBo(oldChronicDiagnosisList, newChronicDiagnosisList);
+                ChronicDiagnosisBo chronicDiagnosisBo = new ChronicDiagnosisBo(newChronicDiagnosisList,oldChronicDiagnosisList);
                 chronicResponse = syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo);
             }
         } catch (InterruptedException e) {
