@@ -35,9 +35,9 @@ public class BffService {
     @Autowired
     private BffConfigurationProperties config;
 
-    @Value("${reids_url}")
+    @Value("${redis_url}")
     private String REDIS_URL;
-    @Value("${reids_port}")
+    @Value("${redis_port}")
     private int REDIS_PORT;
 
     public Result save(NoteDiagnosis noteDiagnosis) {
