@@ -20,6 +20,7 @@ public class NoteDiagnosis {
         this.chronicDiagnosisList = chronicDiagnosisList;
     }
 
+
     public ClinicalNote getClinicalNote() {
         return clinicalNote;
     }

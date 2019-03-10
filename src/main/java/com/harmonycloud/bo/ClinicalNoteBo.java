@@ -3,30 +3,30 @@ package com.harmonycloud.bo;
 import com.harmonycloud.entity.ClinicalNote;
 
 public class ClinicalNoteBo {
-    private ClinicalNote newCalinicalNote;
-    private ClinicalNote oldCalinicalNote;
+    private ClinicalNote newClinicalNote;
+    private ClinicalNote oldClinicalNote;
 
     public ClinicalNoteBo() {
     }
 
-    public ClinicalNoteBo(ClinicalNote newCalinicalNote, ClinicalNote oldCalinicalNote) {
-        this.newCalinicalNote = newCalinicalNote;
-        this.oldCalinicalNote = oldCalinicalNote;
+    public ClinicalNoteBo(ClinicalNote newClinicalNote, ClinicalNote oldClinicalNote) {
+        this.newClinicalNote = newClinicalNote;
+        this.oldClinicalNote = oldClinicalNote;
     }
 
-    public ClinicalNote getNewCalinicalNote() {
-        return newCalinicalNote;
+    public ClinicalNote getNewClinicalNote() {
+        return newClinicalNote;
     }
 
-    public void setNewCalinicalNote(ClinicalNote newCalinicalNote) {
-        this.newCalinicalNote = newCalinicalNote;
+    public void setNewClinicalNote(ClinicalNote newClinicalNote) {
+        this.newClinicalNote = newClinicalNote;
     }
 
-    public ClinicalNote getOldCalinicalNote() {
-        return oldCalinicalNote;
+    public ClinicalNote getOldClinicalNote() {
+        return oldClinicalNote;
     }
 
-    public void setOldCalinicalNote(ClinicalNote oldCalinicalNote) {
-        this.oldCalinicalNote = oldCalinicalNote;
+    public void setOldClinicalNote(ClinicalNote oldClinicalNote) {
+        this.oldClinicalNote = oldClinicalNote;
     }
 }

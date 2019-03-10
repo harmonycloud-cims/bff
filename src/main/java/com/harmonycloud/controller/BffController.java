@@ -7,6 +7,7 @@ import com.harmonycloud.vo.NoteDiagnosis;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +24,7 @@ public class BffController {
     @PostMapping("/insert")
     @ApiOperation(value = "ClinicNote", httpMethod = "POST")
     @ApiImplicitParam(name = "noteDiagnosis", value = "noteDiagnosis", paramType = "body", dataType = "NoteDiagnosis")
+    @SagaStart
     public Result saveNoteDiagnosis(@RequestBody NoteDiagnosis noteDiagnosis) {
         return bffService.save(noteDiagnosis);
     }
@@ -30,6 +32,7 @@ public class BffController {
     @PostMapping("/update")
     @ApiOperation(value = "ClinicNote", httpMethod = "POST")
     @ApiImplicitParam(name = "noteDiagnosisVo", value = "noteDiagnosisVo", paramType = "body", dataType = "NoteDiagnosisVo")
+    @SagaStart
     public Result updateNoteDiagnosis(@RequestBody NoteDiagnosisVo noteDiagnosis1Vo) {
         return bffService.update(noteDiagnosis1Vo);
     }

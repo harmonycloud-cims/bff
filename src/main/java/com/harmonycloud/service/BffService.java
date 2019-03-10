@@ -1,5 +1,7 @@
 package com.harmonycloud.service;
 
+
+import com.github.jedis.lock.JedisLock;
 import com.harmonycloud.bo.AttendingDiagnosisBo;
 import com.harmonycloud.bo.ChronicDiagnosisBo;
 import com.harmonycloud.bo.ClinicalNoteBo;
@@ -10,12 +12,14 @@ import com.harmonycloud.entity.AttendingDiagnosis;
 import com.harmonycloud.entity.ChronicDiagnosis;
 import com.harmonycloud.entity.ClinicalNote;
 import com.harmonycloud.result.Result;
+
 import com.harmonycloud.vo.NoteDiagnosisVo;
 import com.harmonycloud.vo.NoteDiagnosis;
-import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import redis.clients.jedis.Jedis;
+
 
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -30,7 +34,7 @@ public class BffService {
     @Autowired
     private BffConfigurationProperties config;
 
-    @SagaStart
+
     public Result save(NoteDiagnosis noteDiagnosis) {
         ResponseDto clinicalNoteResponse = null;
         ResponseDto attendingResponse = null;
@@ -39,29 +43,40 @@ public class BffService {
 
         List<AttendingDiagnosis> attendingDiagnosisList = noteDiagnosis.getAttendingDiagnosisList();
         List<ChronicDiagnosis> chronicDiagnosisList = noteDiagnosis.getChronicDiagnosisList();
+
+        Jedis jedis = new Jedis("10.10.103.61", 33011);
+        JedisLock lock = new JedisLock(jedis, "test", 10000, 20000);
         try {
-            UserPrincipal userDetails = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
-                    .getPrincipal();
-            String token = userDetails.getToken();
-            Date date = new Date();
+            if (jedis.exists("test")) {
+                throw new InterruptedException("save error");
+            } else {
+                lock.acquire();
+                UserPrincipal userDetails = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+                        .getPrincipal();
+                String token = userDetails.getToken();
+                Date date = new Date();
 
-            clinicalNote.setCreateBy(userDetails.getUsername());
-            clinicalNote.setCreateDate(date);
-
-            clinicalNoteResponse = syncService.save(config.getSaveClinicalNoteUri(), token, clinicalNote);
-
-            attendingResponse = syncService.save(config.getSaveAttendingDiagnosisUri(), token, attendingDiagnosisList);
-
-            chronicResponse = syncService.save(config.getSaveChronicDiagnosisUri(), token, chronicDiagnosisList);
+                clinicalNote.setCreateBy(userDetails.getUsername());
+                clinicalNote.setCreateDate(date);
+                clinicalNoteResponse = syncService.save(config.getSaveClinicalNoteUri(), token, clinicalNote);
+                attendingResponse = syncService.save(config.getSaveAttendingDiagnosisUri(), token, attendingDiagnosisList);
+                chronicResponse = syncService.save(config.getSaveChronicDiagnosisUri(), token, chronicDiagnosisList);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("The clinical note has been updated by another user");
         } catch (URISyntaxException e) {
             e.printStackTrace();
             throw new IllegalStateException("URI excepstion.");
+        } finally {
+            lock.release();
         }
-        return Result.buildSuccess(null);
+
+
+        return Result.buildSuccess("save success");
     }
 
 
-    @SagaStart
     public Result update(NoteDiagnosisVo noteDiagnosisVo) {
         ResponseDto clinicalNoteResponse = null;
         ResponseDto attendingResponse = null;
@@ -72,25 +87,41 @@ public class BffService {
         List<AttendingDiagnosis> oldAttendingDiagnosisList = noteDiagnosisVo.getOldAttendingDiagnosisList();
         List<ChronicDiagnosis> newChronicDiagnosisList = noteDiagnosisVo.getNewChronicDiagnosisList();
         List<ChronicDiagnosis> oldChronicDiagnosisList = noteDiagnosisVo.getOldChronicDiagnosisList();
+
+        Jedis jedis = new Jedis("10.10.103.61", 33011);
+        JedisLock lock = new JedisLock(jedis, "test", 10000, 20000);
         try {
-            UserPrincipal userDetails = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
-                    .getPrincipal();
-            String token = userDetails.getToken();
-            Date date = new Date();
+            if (jedis.exists("test")) {
+                throw new InterruptedException("update error");
+            } else {
+                lock.acquire();
+                UserPrincipal userDetails = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+                        .getPrincipal();
+                String token = userDetails.getToken();
+                Date date = new Date();
 
-            ClinicalNoteBo clinicalNoteBo = new ClinicalNoteBo(oldClinicalNote, newClinicalNote);
-            clinicalNoteResponse = syncService.save(config.getSaveClinicalNoteUri(), token, clinicalNoteBo);
+                newClinicalNote.setCreateBy(userDetails.getUsername());
+                newClinicalNote.setCreateDate(date);
 
-            AttendingDiagnosisBo attendingDiagnosisBo = new AttendingDiagnosisBo(oldAttendingDiagnosisList, newAttendingDiagnosisList);
-            attendingResponse = syncService.save(config.getSaveAttendingDiagnosisUri(), token, attendingDiagnosisBo);
+                ClinicalNoteBo clinicalNoteBo = new ClinicalNoteBo(newClinicalNote, oldClinicalNote);
+                clinicalNoteResponse = syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo);
 
-            ChronicDiagnosisBo chronicDiagnosisBo = new ChronicDiagnosisBo(oldChronicDiagnosisList, newChronicDiagnosisList);
-            chronicResponse = syncService.save(config.getSaveChronicDiagnosisUri(), token, chronicDiagnosisBo);
+                AttendingDiagnosisBo attendingDiagnosisBo = new AttendingDiagnosisBo(oldAttendingDiagnosisList, newAttendingDiagnosisList);
+                attendingResponse = syncService.save(config.getUpdateClinicalNoteUri(), token, attendingDiagnosisBo);
+
+                ChronicDiagnosisBo chronicDiagnosisBo = new ChronicDiagnosisBo(oldChronicDiagnosisList, newChronicDiagnosisList);
+                chronicResponse = syncService.save(config.getUpdateClinicalNoteUri(), token, chronicDiagnosisBo);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("The clinical note has been updated by another user");
         } catch (URISyntaxException e) {
             e.printStackTrace();
             throw new IllegalStateException("URI excepstion.");
+        } finally {
+            lock.release();
         }
-        return Result.buildSuccess(null);
+        return Result.buildSuccess("update success");
 
     }
 }
