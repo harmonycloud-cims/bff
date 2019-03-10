@@ -37,7 +37,8 @@ public class BffService {
 
     @Value("${redis.url}")
     private String REDIS_URL;
-
+    @Value("${redis.port}")
+    private int REDIS_PORT;
 
     public Result save(NoteDiagnosis noteDiagnosis) {
         ResponseDto clinicalNoteResponse = null;
@@ -48,7 +49,7 @@ public class BffService {
         List<AttendingDiagnosis> attendingDiagnosisList = noteDiagnosis.getAttendingDiagnosisList();
         List<ChronicDiagnosis> chronicDiagnosisList = noteDiagnosis.getChronicDiagnosisList();
 
-        Jedis jedis = new Jedis(REDIS_URL, 33011);
+        Jedis jedis = new Jedis(REDIS_URL, REDIS_PORT);
         JedisLock lock = new JedisLock(jedis, "test", 10000, 20000);
         try {
             if (jedis.exists("test")) {
@@ -93,7 +94,7 @@ public class BffService {
         List<ChronicDiagnosis> newChronicDiagnosisList = noteDiagnosisVo.getNewChronicDiagnosisList();
         List<ChronicDiagnosis> oldChronicDiagnosisList = noteDiagnosisVo.getOldChronicDiagnosisList();
 
-        Jedis jedis = new Jedis(REDIS_URL, 33011);
+        Jedis jedis = new Jedis(REDIS_URL,REDIS_PORT);
         JedisLock lock = new JedisLock(jedis, "test", 10000, 20000);
         try {
             if (jedis.exists("test")) {
@@ -112,10 +113,10 @@ public class BffService {
                 clinicalNoteResponse = syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo);
 
                 AttendingDiagnosisBo attendingDiagnosisBo = new AttendingDiagnosisBo(oldAttendingDiagnosisList, newAttendingDiagnosisList);
-                attendingResponse = syncService.save(config.getUpdateClinicalNoteUri(), token, attendingDiagnosisBo);
+                attendingResponse = syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo);
 
                 ChronicDiagnosisBo chronicDiagnosisBo = new ChronicDiagnosisBo(oldChronicDiagnosisList, newChronicDiagnosisList);
-                chronicResponse = syncService.save(config.getUpdateClinicalNoteUri(), token, chronicDiagnosisBo);
+                chronicResponse = syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
