@@ -35,9 +35,9 @@ public class BffService {
     @Autowired
     private BffConfigurationProperties config;
 
-    @Value("${spring.redis.url}")
+    @Value("${cims.redis.url}")
     private String SPRING_REDIS_URL;
-    @Value("${spring.redis.port}")
+    @Value("${cims.redis.port}")
     private int SPRING_REDIS_PORT;
 
     public Result save(NoteDiagnosis noteDiagnosis) {
