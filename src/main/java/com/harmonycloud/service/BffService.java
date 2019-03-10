@@ -16,6 +16,7 @@ import com.harmonycloud.result.Result;
 import com.harmonycloud.vo.NoteDiagnosisVo;
 import com.harmonycloud.vo.NoteDiagnosis;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
@@ -34,6 +35,9 @@ public class BffService {
     @Autowired
     private BffConfigurationProperties config;
 
+    @Value("${redis.url}")
+    private String REDIS_URL;
+
 
     public Result save(NoteDiagnosis noteDiagnosis) {
         ResponseDto clinicalNoteResponse = null;
@@ -44,7 +48,7 @@ public class BffService {
         List<AttendingDiagnosis> attendingDiagnosisList = noteDiagnosis.getAttendingDiagnosisList();
         List<ChronicDiagnosis> chronicDiagnosisList = noteDiagnosis.getChronicDiagnosisList();
 
-        Jedis jedis = new Jedis("10.10.103.61", 33011);
+        Jedis jedis = new Jedis(REDIS_URL, 33011);
         JedisLock lock = new JedisLock(jedis, "test", 10000, 20000);
         try {
             if (jedis.exists("test")) {
@@ -78,6 +82,7 @@ public class BffService {
 
 
     public Result update(NoteDiagnosisVo noteDiagnosisVo) {
+
         ResponseDto clinicalNoteResponse = null;
         ResponseDto attendingResponse = null;
         ResponseDto chronicResponse = null;
@@ -88,7 +93,7 @@ public class BffService {
         List<ChronicDiagnosis> newChronicDiagnosisList = noteDiagnosisVo.getNewChronicDiagnosisList();
         List<ChronicDiagnosis> oldChronicDiagnosisList = noteDiagnosisVo.getOldChronicDiagnosisList();
 
-        Jedis jedis = new Jedis("10.10.103.61", 33011);
+        Jedis jedis = new Jedis(REDIS_URL, 33011);
         JedisLock lock = new JedisLock(jedis, "test", 10000, 20000);
         try {
             if (jedis.exists("test")) {
