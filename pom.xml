@@ -126,7 +126,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
-        <finalName>bff</finalName>
+        <finalName>ROOT</finalName>
     </build>
 
 </project>
