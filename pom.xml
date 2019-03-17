@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.harmonycloud</groupId>
-    <artifactId>clinicalnote</artifactId>
+    <artifactId>bff</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>clinicalnote</name>
+    <name>bff</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>

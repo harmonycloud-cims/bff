@@ -17,6 +17,9 @@ public class BffConfigurationProperties {
     private String saveChronicDiagnosis;
     private String updateChronicDiagnosis;
 
+    private String savePrescription;
+    private String updatePrescription;
+
     public String getSaveClinicalNote() {
         return saveClinicalNote;
     }
@@ -65,6 +68,22 @@ public class BffConfigurationProperties {
         this.updateChronicDiagnosis = updateChronicDiagnosis;
     }
 
+    public String getSavePrescription() {
+        return savePrescription;
+    }
+
+    public void setSavePrescription(String savePrescription) {
+        this.savePrescription = savePrescription;
+    }
+
+    public String getUpdatePrescription() {
+        return updatePrescription;
+    }
+
+    public void setUpdatePrescription(String updatePrescription) {
+        this.updatePrescription = updatePrescription;
+    }
+
     public URI getUpdateClinicalNoteUri() {
         try {
             return new URI(updateClinicalNote);
@@ -72,6 +91,7 @@ public class BffConfigurationProperties {
             return null;
         }
     }
+
     public URI getSaveClinicalNoteUri() {
         try {
             return new URI(saveClinicalNote);
@@ -87,6 +107,7 @@ public class BffConfigurationProperties {
             return null;
         }
     }
+
     public URI getUpdateAttendingDiagnosisUri() {
         try {
             return new URI(updateAttendingDiagnosis);
@@ -106,6 +127,22 @@ public class BffConfigurationProperties {
     public URI getUpdateChronicDiagnosisUri() {
         try {
             return new URI(updateChronicDiagnosis);
+        } catch (URISyntaxException e) {
+            return null;
+        }
+    }
+
+    public URI getSavePrescriptionUri() {
+        try {
+            return new URI(savePrescription);
+        } catch (URISyntaxException e) {
+            return null;
+        }
+    }
+
+    public URI getUpdatePrescriptionUri() {
+        try {
+            return new URI(updatePrescription);
         } catch (URISyntaxException e) {
             return null;
         }

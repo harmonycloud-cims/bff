@@ -2,19 +2,13 @@ package com.harmonycloud.service;
 
 
 import com.github.jedis.lock.JedisLock;
-import com.harmonycloud.bo.AttendingDiagnosisBo;
-import com.harmonycloud.bo.ChronicDiagnosisBo;
-import com.harmonycloud.bo.ClinicalNoteBo;
-import com.harmonycloud.bo.UserPrincipal;
+import com.harmonycloud.bo.*;
 import com.harmonycloud.config.BffConfigurationProperties;
-import com.harmonycloud.dto.ResponseDto;
-import com.harmonycloud.entity.AttendingDiagnosis;
-import com.harmonycloud.entity.ChronicDiagnosis;
-import com.harmonycloud.entity.ClinicalNote;
+import com.harmonycloud.dto.*;
+import com.harmonycloud.entity.*;
+import com.harmonycloud.result.CimsResponseWrapper;
 import com.harmonycloud.result.Result;
 
-import com.harmonycloud.vo.NoteDiagnosisVo;
-import com.harmonycloud.vo.NoteDiagnosis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,32 +34,30 @@ public class BffService {
     @Value("${cims.redis.port}")
     private int SPRING_REDIS_PORT;
 
-    public Result save(NoteDiagnosis noteDiagnosis) {
-        ResponseDto clinicalNoteResponse = null;
-        ResponseDto attendingResponse = null;
-        ResponseDto chronicResponse = null;
-        ClinicalNote clinicalNote = noteDiagnosis.getClinicalNote();
+    public Result saveNoteDiagnosis(NoteDiagnosisBo noteDiagnosisBo) {
 
-        List<AttendingDiagnosis> attendingDiagnosisList = noteDiagnosis.getAttendingDiagnosisList();
-        List<ChronicDiagnosis> chronicDiagnosisList = noteDiagnosis.getChronicDiagnosisList();
+        ClinicalNote clinicalNote = noteDiagnosisBo.getClinicalNote();
+
+        List<AttendingDiagnosis> attendingDiagnosisList = noteDiagnosisBo.getAttendingDiagnosisList();
+        List<ChronicDiagnosis> chronicDiagnosisList = noteDiagnosisBo.getChronicDiagnosisList();
+        String encounterId = clinicalNote.getEncounterId().toString();
 
         Jedis jedis = new Jedis(SPRING_REDIS_URL, SPRING_REDIS_PORT);
-        JedisLock lock = new JedisLock(jedis, "test", 10000, 20000);
+        JedisLock lock = new JedisLock(jedis, encounterId, 10000, 20000);
         try {
-            if (jedis.exists("test")) {
-                throw new InterruptedException("save error");
+            if (jedis.exists(encounterId)) {
+                throw new InterruptedException("locked");
             } else {
                 lock.acquire();
                 UserPrincipal userDetails = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
                         .getPrincipal();
                 String token = userDetails.getToken();
-                Date date = new Date();
 
-                clinicalNote.setCreateBy(userDetails.getUsername());
-                clinicalNote.setCreateDate(date);
-                clinicalNoteResponse = syncService.save(config.getSaveClinicalNoteUri(), token, clinicalNote);
-                attendingResponse = syncService.save(config.getSaveAttendingDiagnosisUri(), token, attendingDiagnosisList);
-                chronicResponse = syncService.save(config.getSaveChronicDiagnosisUri(), token, chronicDiagnosisList);
+
+
+                syncService.save(config.getSaveClinicalNoteUri(), token, clinicalNote);
+                syncService.save(config.getSaveAttendingDiagnosisUri(), token, attendingDiagnosisList);
+                syncService.save(config.getSaveChronicDiagnosisUri(), token, chronicDiagnosisList);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -82,23 +74,21 @@ public class BffService {
     }
 
 
-    public Result update(NoteDiagnosisVo noteDiagnosisVo) {
+    public Result updateNoteDiagnosis(NoteDiagnosisDto noteDiagnosisDto) {
 
-        ResponseDto clinicalNoteResponse = null;
-        ResponseDto attendingResponse = null;
-        ResponseDto chronicResponse = null;
-        ClinicalNote oldClinicalNote = noteDiagnosisVo.getOldClinicalNote();
-        ClinicalNote newClinicalNote = noteDiagnosisVo.getNewClinicalNote();
-        List<AttendingDiagnosis> newAttendingDiagnosisList = noteDiagnosisVo.getNewAttendingDiagnosisList();
-        List<AttendingDiagnosis> oldAttendingDiagnosisList = noteDiagnosisVo.getOldAttendingDiagnosisList();
-        List<ChronicDiagnosis> newChronicDiagnosisList = noteDiagnosisVo.getNewChronicDiagnosisList();
-        List<ChronicDiagnosis> oldChronicDiagnosisList = noteDiagnosisVo.getOldChronicDiagnosisList();
+        ClinicalNote oldClinicalNote = noteDiagnosisDto.getOldClinicalNote();
+        ClinicalNote newClinicalNote = noteDiagnosisDto.getNewClinicalNote();
+        List<AttendingDiagnosis> newAttendingDiagnosisList = noteDiagnosisDto.getNewAttendingDiagnosisList();
+        List<AttendingDiagnosis> oldAttendingDiagnosisList = noteDiagnosisDto.getOldAttendingDiagnosisList();
+        List<ChronicDiagnosis> newChronicDiagnosisList = noteDiagnosisDto.getNewChronicDiagnosisList();
+        List<ChronicDiagnosis> oldChronicDiagnosisList = noteDiagnosisDto.getOldChronicDiagnosisList();
 
+        String encounterId = oldClinicalNote.getEncounterId().toString();
         Jedis jedis = new Jedis(SPRING_REDIS_URL, SPRING_REDIS_PORT);
-        JedisLock lock = new JedisLock(jedis, "test", 10000, 20000);
+        JedisLock lock = new JedisLock(jedis, encounterId, 10000, 20000);
         try {
-            if (jedis.exists("test")) {
-                throw new InterruptedException("update error");
+            if (jedis.exists(encounterId)) {
+                throw new InterruptedException("locked");
             } else {
                 lock.acquire();
                 UserPrincipal userDetails = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
@@ -110,13 +100,13 @@ public class BffService {
                 newClinicalNote.setCreateDate(date);
 
                 ClinicalNoteBo clinicalNoteBo = new ClinicalNoteBo(newClinicalNote, oldClinicalNote);
-                clinicalNoteResponse = syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo);
+                syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo);
 
                 AttendingDiagnosisBo attendingDiagnosisBo = new AttendingDiagnosisBo(newAttendingDiagnosisList, oldAttendingDiagnosisList);
-                attendingResponse = syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo);
+                syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo);
 
                 ChronicDiagnosisBo chronicDiagnosisBo = new ChronicDiagnosisBo(newChronicDiagnosisList, oldChronicDiagnosisList);
-                chronicResponse = syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo);
+                syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -130,4 +120,85 @@ public class BffService {
         return Result.buildSuccess("update success");
 
     }
+
+
+    public CimsResponseWrapper<String> nextPatient(NoteDiagnosisDrugDto noteDiagnosisDrugDto) throws Exception {
+
+        ClinicalNote oldClinicalNote = noteDiagnosisDrugDto.getOldClinicalNote();
+        ClinicalNote newClinicalNote = noteDiagnosisDrugDto.getNewClinicalNote();
+        ClinicalNoteBo clinicalNoteBo = new ClinicalNoteBo(newClinicalNote, oldClinicalNote);
+
+        List<AttendingDiagnosis> newAttendingDiagnosisList = noteDiagnosisDrugDto.getNewAttendingDiagnosisList();
+        AttendingDiagnosisBo attendingDiagnosisBo = new AttendingDiagnosisBo(newAttendingDiagnosisList, noteDiagnosisDrugDto.getOldAttendingDiagnosisList());
+        List<ChronicDiagnosis> newChronicDiagnosisList = noteDiagnosisDrugDto.getNewChronicDiagnosisList();
+        ChronicDiagnosisBo chronicDiagnosisBo = new ChronicDiagnosisBo(newChronicDiagnosisList, noteDiagnosisDrugDto.getOldChronicDiagnosisList());
+
+        Prescription prescription = noteDiagnosisDrugDto.getOldPrescription();
+        List<PrescriptionDrug> oldPrescriptionDrugList = noteDiagnosisDrugDto.getOldPrescriptionDrugList();
+        List<PrescriptionDrug> newPrescriptionDrugList = noteDiagnosisDrugDto.getNewPrescriptionDrugList();
+        PrescriptionBo prescriptionBo = new PrescriptionBo(prescription, newPrescriptionDrugList);
+        PrescriptionDrugBo prescriptionDrugBo = new PrescriptionDrugBo(prescription, oldPrescriptionDrugList, newPrescriptionDrugList);
+
+        String encounterId = newClinicalNote.getEncounterId().toString();
+
+        Jedis jedis = new Jedis(SPRING_REDIS_URL, SPRING_REDIS_PORT);
+        JedisLock lock = new JedisLock(jedis, encounterId, 10000, 20000);
+        try {
+            if (jedis.exists(encounterId)) {
+                throw new InterruptedException("locked");
+            } else {
+                lock.acquire();
+                UserPrincipal userDetails = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
+                        .getPrincipal();
+                String token = userDetails.getToken();
+
+
+                if (oldClinicalNote == null) {
+                    if (prescription.getCreateBy() == null ) {
+                        //save note and diagnosis
+                        syncService.save(config.getSaveClinicalNoteUri(), token, newClinicalNote);
+                        syncService.save(config.getSaveAttendingDiagnosisUri(), token, newAttendingDiagnosisList);
+                        syncService.save(config.getSaveChronicDiagnosisUri(), token, newChronicDiagnosisList);
+                        //save prescirption
+                        syncService.save(config.getSavePrescriptionUri(), token, prescriptionBo);
+                    } else {
+                        //save note and diagnosis
+                        syncService.save(config.getSaveClinicalNoteUri(), token, newClinicalNote);
+                        syncService.save(config.getSaveAttendingDiagnosisUri(), token, newAttendingDiagnosisList);
+                        syncService.save(config.getSaveChronicDiagnosisUri(), token, newChronicDiagnosisList);
+                        //update prescirption
+                        syncService.save(config.getUpdatePrescriptionUri(), token, prescriptionDrugBo);
+                    }
+                } else {
+                    if (oldPrescriptionDrugList.size() == 0) {
+                        //update note and diagnosis
+                        syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo);
+                        syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo);
+                        syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo);
+                        //save prescirption
+                        syncService.save(config.getSavePrescriptionUri(), token, prescriptionBo);
+                    } else {
+                        //update note and diagnosis
+                        syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo);
+                        syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo);
+                        syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo);
+                        //update prescirption
+                        syncService.save(config.getUpdatePrescriptionUri(), token, prescriptionDrugBo);
+
+                    }
+                }
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("The clinical note has been updated by another user");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("URI excepstion.");
+        } finally {
+            lock.release();
+        }
+        return new CimsResponseWrapper<>(true, null, "Update success");
+    }
+
+
 }
