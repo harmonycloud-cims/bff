@@ -1,6 +1,5 @@
 package com.harmonycloud.result;
 
-import com.harmonycloud.enums.ErrorMsgEnum;
 import io.swagger.annotations.ApiModelProperty;
 
 public class CimsResponseWrapper<E> {

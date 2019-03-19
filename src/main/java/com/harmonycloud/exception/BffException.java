@@ -5,6 +5,4 @@ public class BffException extends RuntimeException {
     public BffException(String message) {
         super(message);
     }
-
-
 }

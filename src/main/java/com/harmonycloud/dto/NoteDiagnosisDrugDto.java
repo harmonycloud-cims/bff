@@ -18,7 +18,10 @@ public class NoteDiagnosisDrugDto {
     public NoteDiagnosisDrugDto() {
     }
 
-    public NoteDiagnosisDrugDto(ClinicalNote newClinicalNote, ClinicalNote oldClinicalNote, List<AttendingDiagnosis> oldAttendingDiagnosisList, List<ChronicDiagnosis> oldChronicDiagnosisList, List<AttendingDiagnosis> newAttendingDiagnosisList, List<ChronicDiagnosis> newChronicDiagnosisList, Prescription oldPrescription, List<PrescriptionDrug> oldPrescriptionDrugList, List<PrescriptionDrug> newPrescriptionDrugList) {
+    public NoteDiagnosisDrugDto(ClinicalNote newClinicalNote, ClinicalNote oldClinicalNote, List<AttendingDiagnosis> oldAttendingDiagnosisList,
+                                List<ChronicDiagnosis> oldChronicDiagnosisList, List<AttendingDiagnosis> newAttendingDiagnosisList,
+                                List<ChronicDiagnosis> newChronicDiagnosisList, Prescription oldPrescription, List<PrescriptionDrug> oldPrescriptionDrugList,
+                                List<PrescriptionDrug> newPrescriptionDrugList) {
         this.newClinicalNote = newClinicalNote;
         this.oldClinicalNote = oldClinicalNote;
         this.oldAttendingDiagnosisList = oldAttendingDiagnosisList;

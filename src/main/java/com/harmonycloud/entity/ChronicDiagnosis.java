@@ -12,7 +12,7 @@ public class ChronicDiagnosis {
     }
 
     public ChronicDiagnosis(Integer diagnosisId, Integer patientId, Integer encounterId, String status) {
-         this.diagnosisId = diagnosisId;
+        this.diagnosisId = diagnosisId;
         this.patientId = patientId;
         this.encounterId = encounterId;
         this.status = status;

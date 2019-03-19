@@ -17,18 +17,20 @@ import java.net.Proxy;
 public final class RestProxyTemplate {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired RestTemplate restTemplate;
+    @Value("${proxy.host:}")
+    private String host;
+
+    @Value("${proxy.port:}")
+    private String port;
+
+    @Autowired
+    RestTemplate restTemplate;
 
     @Bean
     public RestTemplate template() {
         return new RestTemplate();
     }
 
-    @Value("${proxy.host:}")
-    private String host;
-
-    @Value("${proxy.port:}")
-    private String port;
 
     @PostConstruct
     public void init() {

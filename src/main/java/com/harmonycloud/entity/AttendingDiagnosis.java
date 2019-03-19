@@ -11,7 +11,7 @@ public class AttendingDiagnosis {
     }
 
     public AttendingDiagnosis(Integer patientId, Integer diagnosisId, Integer encounterId) {
-        this.patientId=patientId;
+        this.patientId = patientId;
         this.diagnosisId = diagnosisId;
         this.encounterId = encounterId;
     }

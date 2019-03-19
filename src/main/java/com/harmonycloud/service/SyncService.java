@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 @Service
 public class SyncService {
