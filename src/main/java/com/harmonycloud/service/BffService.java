@@ -11,6 +11,7 @@ import com.harmonycloud.result.Result;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
@@ -34,7 +35,7 @@ public class BffService {
     @Value("${cims.redis.port}")
     private int SPRING_REDIS_PORT;
 
-    public Result saveNoteDiagnosis(NoteDiagnosisBo noteDiagnosisBo) {
+    public Result saveNoteDiagnosis(NoteDiagnosisBo noteDiagnosisBo, HttpHeaders forwardHeaders) throws Exception {
 
         ClinicalNote clinicalNote = noteDiagnosisBo.getClinicalNote();
 
@@ -54,10 +55,9 @@ public class BffService {
                 String token = userDetails.getToken();
 
 
-
-                syncService.save(config.getSaveClinicalNoteUri(), token, clinicalNote);
-                syncService.save(config.getSaveAttendingDiagnosisUri(), token, attendingDiagnosisList);
-                syncService.save(config.getSaveChronicDiagnosisUri(), token, chronicDiagnosisList);
+                syncService.save(config.getSaveClinicalNoteUri(), token, clinicalNote, forwardHeaders);
+                syncService.save(config.getSaveAttendingDiagnosisUri(), token, attendingDiagnosisList, forwardHeaders);
+                syncService.save(config.getSaveChronicDiagnosisUri(), token, chronicDiagnosisList, forwardHeaders);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -74,7 +74,7 @@ public class BffService {
     }
 
 
-    public Result updateNoteDiagnosis(NoteDiagnosisDto noteDiagnosisDto) {
+    public Result updateNoteDiagnosis(NoteDiagnosisDto noteDiagnosisDto, HttpHeaders forwardHeaders) throws Exception {
 
         ClinicalNote oldClinicalNote = noteDiagnosisDto.getOldClinicalNote();
         ClinicalNote newClinicalNote = noteDiagnosisDto.getNewClinicalNote();
@@ -100,13 +100,13 @@ public class BffService {
                 newClinicalNote.setCreateDate(date);
 
                 ClinicalNoteBo clinicalNoteBo = new ClinicalNoteBo(newClinicalNote, oldClinicalNote);
-                syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo);
+                syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo, forwardHeaders);
 
                 AttendingDiagnosisBo attendingDiagnosisBo = new AttendingDiagnosisBo(newAttendingDiagnosisList, oldAttendingDiagnosisList);
-                syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo);
+                syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo, forwardHeaders);
 
                 ChronicDiagnosisBo chronicDiagnosisBo = new ChronicDiagnosisBo(newChronicDiagnosisList, oldChronicDiagnosisList);
-                syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo);
+                syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo, forwardHeaders);
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -122,7 +122,7 @@ public class BffService {
     }
 
 
-    public CimsResponseWrapper<String> nextPatient(NoteDiagnosisDrugDto noteDiagnosisDrugDto) throws Exception {
+    public CimsResponseWrapper<String> nextPatient(NoteDiagnosisDrugDto noteDiagnosisDrugDto, HttpHeaders forwardHeaders) throws Exception {
 
         ClinicalNote oldClinicalNote = noteDiagnosisDrugDto.getOldClinicalNote();
         ClinicalNote newClinicalNote = noteDiagnosisDrugDto.getNewClinicalNote();
@@ -154,36 +154,36 @@ public class BffService {
 
 
                 if (oldClinicalNote == null) {
-                    if (prescription.getCreateBy() == null ) {
+                    if (prescription.getCreateBy() == null) {
                         //save note and diagnosis
-                        syncService.save(config.getSaveClinicalNoteUri(), token, newClinicalNote);
-                        syncService.save(config.getSaveAttendingDiagnosisUri(), token, newAttendingDiagnosisList);
-                        syncService.save(config.getSaveChronicDiagnosisUri(), token, newChronicDiagnosisList);
+                        syncService.save(config.getSaveClinicalNoteUri(), token, newClinicalNote, forwardHeaders);
+                        syncService.save(config.getSaveAttendingDiagnosisUri(), token, newAttendingDiagnosisList, forwardHeaders);
+                        syncService.save(config.getSaveChronicDiagnosisUri(), token, newChronicDiagnosisList, forwardHeaders);
                         //save prescirption
-                        syncService.save(config.getSavePrescriptionUri(), token, prescriptionBo);
+                        syncService.save(config.getSavePrescriptionUri(), token, prescriptionBo, forwardHeaders);
                     } else {
                         //save note and diagnosis
-                        syncService.save(config.getSaveClinicalNoteUri(), token, newClinicalNote);
-                        syncService.save(config.getSaveAttendingDiagnosisUri(), token, newAttendingDiagnosisList);
-                        syncService.save(config.getSaveChronicDiagnosisUri(), token, newChronicDiagnosisList);
+                        syncService.save(config.getSaveClinicalNoteUri(), token, newClinicalNote, forwardHeaders);
+                        syncService.save(config.getSaveAttendingDiagnosisUri(), token, newAttendingDiagnosisList, forwardHeaders);
+                        syncService.save(config.getSaveChronicDiagnosisUri(), token, newChronicDiagnosisList, forwardHeaders);
                         //update prescirption
-                        syncService.save(config.getUpdatePrescriptionUri(), token, prescriptionDrugBo);
+                        syncService.save(config.getUpdatePrescriptionUri(), token, prescriptionDrugBo, forwardHeaders);
                     }
                 } else {
-                    if (oldPrescriptionDrugList.size() == 0) {
+                    if (prescription.getCreateBy() == null) {
                         //update note and diagnosis
-                        syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo);
-                        syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo);
-                        syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo);
+                        syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo, forwardHeaders);
+                        syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo, forwardHeaders);
+                        syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo, forwardHeaders);
                         //save prescirption
-                        syncService.save(config.getSavePrescriptionUri(), token, prescriptionBo);
+                        syncService.save(config.getSavePrescriptionUri(), token, prescriptionBo, forwardHeaders);
                     } else {
                         //update note and diagnosis
-                        syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo);
-                        syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo);
-                        syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo);
+                        syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo, forwardHeaders);
+                        syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo, forwardHeaders);
+                        syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo, forwardHeaders);
                         //update prescirption
-                        syncService.save(config.getUpdatePrescriptionUri(), token, prescriptionDrugBo);
+                        syncService.save(config.getUpdatePrescriptionUri(), token, prescriptionDrugBo, forwardHeaders);
 
                     }
                 }
@@ -197,7 +197,7 @@ public class BffService {
         } finally {
             lock.release();
         }
-        return new CimsResponseWrapper<>(true, null, "Update success");
+        return new CimsResponseWrapper<>(true, null, "Success");
     }
 
 

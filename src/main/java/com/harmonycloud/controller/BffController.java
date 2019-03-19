@@ -11,8 +11,10 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -27,16 +29,16 @@ public class BffController {
     @ApiOperation(value = "save clinical note and diagnosis", httpMethod = "POST")
     @ApiImplicitParam(name = "noteDiagnosisBo", value = "noteDiagnosisBo", paramType = "body", dataType = "NoteDiagnosisBo")
     @SagaStart
-    public Result saveNoteDiagnosis(@RequestBody NoteDiagnosisBo noteDiagnosisBo) {
-        return bffService.saveNoteDiagnosis(noteDiagnosisBo);
+    public Result saveNoteDiagnosis(@RequestBody NoteDiagnosisBo noteDiagnosisBo,@RequestHeader HttpHeaders forwardHeaders) throws Exception{
+        return bffService.saveNoteDiagnosis(noteDiagnosisBo,forwardHeaders);
     }
 
     @PostMapping("/update")
     @ApiOperation(value = "update clinical note and diagnosis", httpMethod = "POST")
     @ApiImplicitParam(name = "noteDiagnosisDto", value = "noteDiagnosisDto", paramType = "body", dataType = "NoteDiagnosisDto")
     @SagaStart
-    public Result updateNoteDiagnosis(@RequestBody NoteDiagnosisDto noteDiagnosisDto) {
-        return bffService.updateNoteDiagnosis(noteDiagnosisDto);
+    public Result updateNoteDiagnosis(@RequestBody NoteDiagnosisDto noteDiagnosisDto,@RequestHeader HttpHeaders forwardHeaders) throws Exception{
+        return bffService.updateNoteDiagnosis(noteDiagnosisDto,forwardHeaders);
     }
 
 
@@ -46,8 +48,8 @@ public class BffController {
     @ApiOperation(value = "save clinical note、diagnosis and prescription", httpMethod = "POST")
     @ApiImplicitParam(name = "noteDiagnosisDrugDto", value = "noteDiagnosisDrugDto", paramType = "body", dataType = "NoteDiagnosisDrugDto")
     @SagaStart
-    public CimsResponseWrapper<String> nextPatient(@RequestBody NoteDiagnosisDrugDto noteDiagnosisDrugDto) throws  Exception{
-        return bffService.nextPatient(noteDiagnosisDrugDto);
+    public CimsResponseWrapper<String> nextPatient(@RequestBody NoteDiagnosisDrugDto noteDiagnosisDrugDto,@RequestHeader HttpHeaders forwardHeaders) throws  Exception{
+        return bffService.nextPatient(noteDiagnosisDrugDto,forwardHeaders);
     }
 
 
