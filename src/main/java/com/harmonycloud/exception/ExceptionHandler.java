@@ -17,7 +17,7 @@ public class ExceptionHandler {
     @ResponseBody
     public CimsResponseWrapper<Object> handler(Throwable e) {
         logger.error(e.getMessage());
-        if (e instanceof BffException) {
+        if (e instanceof BffException ) {
             return new CimsResponseWrapper<>(false, e.getMessage(), null);
         }
 
