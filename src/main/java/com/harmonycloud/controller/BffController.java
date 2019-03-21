@@ -12,10 +12,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.apache.servicecomb.saga.omega.context.annotations.SagaStart;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -29,7 +27,6 @@ public class BffController {
      * save clinical note and diagnosis
      *
      * @param noteDiagnosisBo model
-     * @param forwardHeaders  headers
      * @return
      * @throws Exception
      */
@@ -37,18 +34,18 @@ public class BffController {
     @ApiOperation(value = "save clinical note and diagnosis", httpMethod = "POST")
     @ApiImplicitParam(name = "noteDiagnosisBo", value = "noteDiagnosisBo", paramType = "body", dataType = "NoteDiagnosisBo")
     @SagaStart
-    public CimsResponseWrapper<String> saveNoteDiagnosis(@RequestBody NoteDiagnosisBo noteDiagnosisBo, @RequestHeader HttpHeaders forwardHeaders) throws Exception {
+    public CimsResponseWrapper<String> saveNoteDiagnosis(@RequestBody NoteDiagnosisBo noteDiagnosisBo) throws Exception {
         if (noteDiagnosisBo == null || noteDiagnosisBo.getClinicalNote().getEncounterId() <= 0 || noteDiagnosisBo.getClinicalNote().getPatientId() <= 0) {
             throw new BffException(ErrorMsgEnum.PARAMETER_ERROR.getMessage());
         }
-        return bffService.saveNoteDiagnosis(noteDiagnosisBo, forwardHeaders);
+        bffService.saveNoteDiagnosis(noteDiagnosisBo);
+        return new CimsResponseWrapper<>(true, null, "Save success");
     }
 
     /**
      * update clinical note and diagnosis
      *
      * @param noteDiagnosisDto model
-     * @param forwardHeaders   headers
      * @return
      * @throws Exception
      */
@@ -56,12 +53,14 @@ public class BffController {
     @ApiOperation(value = "update clinical note and diagnosis", httpMethod = "POST")
     @ApiImplicitParam(name = "noteDiagnosisDto", value = "noteDiagnosisDto", paramType = "body", dataType = "NoteDiagnosisDto")
     @SagaStart
-    public CimsResponseWrapper<String> updateNoteDiagnosis(@RequestBody NoteDiagnosisDto noteDiagnosisDto, @RequestHeader HttpHeaders forwardHeaders) throws Exception {
+    public CimsResponseWrapper<String> updateNoteDiagnosis(@RequestBody NoteDiagnosisDto noteDiagnosisDto) throws Exception {
         if (noteDiagnosisDto == null || noteDiagnosisDto.getNewClinicalNote().getEncounterId() <= 0 || noteDiagnosisDto.getNewClinicalNote().getEncounterId() <= 0
                 || noteDiagnosisDto.getOldClinicalNote().getEncounterId() <= 0 || noteDiagnosisDto.getOldClinicalNote().getPatientId() <= 0) {
             throw new BffException(ErrorMsgEnum.PARAMETER_ERROR.getMessage());
         }
-        return bffService.updateNoteDiagnosis(noteDiagnosisDto, forwardHeaders);
+        bffService.updateNoteDiagnosis(noteDiagnosisDto);
+        return new CimsResponseWrapper<>(true, null, "Update success");
+
     }
 
 
@@ -69,7 +68,6 @@ public class BffController {
      * save/update clinical note 、diagnosis and prescription
      *
      * @param noteDiagnosisDrugDto model
-     * @param forwardHeaders       headers
      * @return
      * @throws Exception
      */
@@ -77,13 +75,15 @@ public class BffController {
     @ApiOperation(value = "save clinical note、diagnosis and prescription", httpMethod = "POST")
     @ApiImplicitParam(name = "noteDiagnosisDrugDto", value = "noteDiagnosisDrugDto", paramType = "body", dataType = "NoteDiagnosisDrugDto")
     @SagaStart
-    public CimsResponseWrapper<String> nextPatient(@RequestBody NoteDiagnosisDrugDto noteDiagnosisDrugDto, @RequestHeader HttpHeaders forwardHeaders) throws Exception {
+    public CimsResponseWrapper<String> nextPatient(@RequestBody NoteDiagnosisDrugDto noteDiagnosisDrugDto) throws Exception {
         if (noteDiagnosisDrugDto == null || noteDiagnosisDrugDto.getNewClinicalNote().getEncounterId() <= 0
-                || noteDiagnosisDrugDto.getNewClinicalNote().getPatientId() <= 0 || noteDiagnosisDrugDto.getOldPrescription().getEncounterId() <= 0
-                || noteDiagnosisDrugDto.getOldPrescription().getPatientId() <= 0 || noteDiagnosisDrugDto.getOldPrescription().getClinicId() <= 0) {
+                || noteDiagnosisDrugDto.getNewClinicalNote().getPatientId() <= 0 || noteDiagnosisDrugDto.getPrescription().getEncounterId() <= 0
+                || noteDiagnosisDrugDto.getPrescription().getPatientId() <= 0 || noteDiagnosisDrugDto.getPrescription().getClinicId() <= 0) {
             throw new BffException(ErrorMsgEnum.PARAMETER_ERROR.getMessage());
         }
-        return bffService.nextPatient(noteDiagnosisDrugDto, forwardHeaders);
+        bffService.nextPatient(noteDiagnosisDrugDto);
+        return new CimsResponseWrapper<>(true, null, "Success");
+
     }
 
 

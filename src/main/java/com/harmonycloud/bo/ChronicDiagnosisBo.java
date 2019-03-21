@@ -5,7 +5,9 @@ import com.harmonycloud.entity.ChronicDiagnosis;
 import java.util.List;
 
 public class ChronicDiagnosisBo {
+
     List<ChronicDiagnosis> newChronicDiagnosisList;
+
     List<ChronicDiagnosis> oldChronicDiagnosisList;
 
     public ChronicDiagnosisBo() {

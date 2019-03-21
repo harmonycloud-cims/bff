@@ -5,7 +5,9 @@ import com.harmonycloud.entity.AttendingDiagnosis;
 import java.util.List;
 
 public class AttendingDiagnosisBo {
+
     List<AttendingDiagnosis> newAttendingDiagnosisList;
+
     List<AttendingDiagnosis> oldAttendingDiagnosisList;
 
     public AttendingDiagnosisBo() {

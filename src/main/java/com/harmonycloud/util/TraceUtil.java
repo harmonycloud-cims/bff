@@ -4,11 +4,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
+import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
+import org.springframework.web.servlet.HttpServletBean;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import java.util.List;
 
 public class TraceUtil {
-    private final static Logger LOG = LoggerFactory.getLogger(TraceUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TraceUtil.class);
     private static final String[] keys = {
             "x-request-id",
             "x-b3-traceid",
@@ -29,6 +33,20 @@ public class TraceUtil {
             if (value != null)
                 headers.put(key, value);
         }
+    }
+
+    public static void addTraceForHttp(HttpServletRequest request, HttpHeaders headers) throws Exception {
+        if (request == null || headers == null) {
+            LOG.warn("request or headers should not be null while adding trace id.");
+            return;
+        }
+        for (String key : keys) {
+            String value = request.getHeader(key);
+            if (value != null) {
+                headers.set(key, value);
+            }
+        }
+
     }
 
     public static RequestEntity.HeadersBuilder<?> addTraceForHttp(HttpHeaders forwardHeaders, RequestEntity.HeadersBuilder<?> headers) {

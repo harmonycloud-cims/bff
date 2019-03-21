@@ -1,6 +1,8 @@
 package com.harmonycloud.security;
 
 import com.harmonycloud.bo.UserPrincipal;
+import com.harmonycloud.enums.ErrorMsgEnum;
+import com.harmonycloud.exception.BffException;
 import com.harmonycloud.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = getJwtFromRequest(request);
 
-            if (StringUtils.hasText(jwt) && jwtUtil.validateToken(jwt)) {
+            if (StringUtils.hasText(jwt) && jwtUtil.validateToken(jwt, request)) {
                 Map<String, Object> claims = jwtUtil.getUserInfoFromJWT(jwt);
                 UserPrincipal userDetails = UserPrincipalFactory.createUserPrincipal(jwt, claims);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -39,7 +41,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception ex) {
-            logger.error("Could not set user authentication in security context", ex);
+            throw new BffException(ErrorMsgEnum.AUTHENTICATION_ERROR.getMessage());
+
         }
 
         filterChain.doFilter(request, response);

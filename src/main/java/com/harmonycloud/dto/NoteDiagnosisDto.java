@@ -7,11 +7,17 @@ import com.harmonycloud.entity.ClinicalNote;
 import java.util.List;
 
 public class NoteDiagnosisDto {
+
     private ClinicalNote newClinicalNote;
+
     private ClinicalNote oldClinicalNote;
+
     private List<AttendingDiagnosis> oldAttendingDiagnosisList;
+
     private List<ChronicDiagnosis> oldChronicDiagnosisList;
+
     private List<AttendingDiagnosis> newAttendingDiagnosisList;
+
     private List<ChronicDiagnosis> newChronicDiagnosisList;
 
     public NoteDiagnosisDto() {

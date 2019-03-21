@@ -5,22 +5,30 @@ import com.harmonycloud.entity.*;
 import java.util.List;
 
 public class NoteDiagnosisDrugDto {
+
     private ClinicalNote newClinicalNote;
+
     private ClinicalNote oldClinicalNote;
+
     private List<AttendingDiagnosis> oldAttendingDiagnosisList;
+
     private List<ChronicDiagnosis> oldChronicDiagnosisList;
+
     private List<AttendingDiagnosis> newAttendingDiagnosisList;
+
     private List<ChronicDiagnosis> newChronicDiagnosisList;
-    private Prescription oldPrescription;
+
+    private Prescription prescription;
+
     private List<PrescriptionDrug> oldPrescriptionDrugList;
+
     private List<PrescriptionDrug> newPrescriptionDrugList;
 
     public NoteDiagnosisDrugDto() {
     }
 
-    public NoteDiagnosisDrugDto(ClinicalNote newClinicalNote, ClinicalNote oldClinicalNote, List<AttendingDiagnosis> oldAttendingDiagnosisList,
-                                List<ChronicDiagnosis> oldChronicDiagnosisList, List<AttendingDiagnosis> newAttendingDiagnosisList,
-                                List<ChronicDiagnosis> newChronicDiagnosisList, Prescription oldPrescription, List<PrescriptionDrug> oldPrescriptionDrugList,
+    public NoteDiagnosisDrugDto(ClinicalNote newClinicalNote, ClinicalNote oldClinicalNote, List<AttendingDiagnosis> oldAttendingDiagnosisList, List<ChronicDiagnosis> oldChronicDiagnosisList,
+                                List<AttendingDiagnosis> newAttendingDiagnosisList, List<ChronicDiagnosis> newChronicDiagnosisList, Prescription prescription, List<PrescriptionDrug> oldPrescriptionDrugList,
                                 List<PrescriptionDrug> newPrescriptionDrugList) {
         this.newClinicalNote = newClinicalNote;
         this.oldClinicalNote = oldClinicalNote;
@@ -28,7 +36,7 @@ public class NoteDiagnosisDrugDto {
         this.oldChronicDiagnosisList = oldChronicDiagnosisList;
         this.newAttendingDiagnosisList = newAttendingDiagnosisList;
         this.newChronicDiagnosisList = newChronicDiagnosisList;
-        this.oldPrescription = oldPrescription;
+        this.prescription = prescription;
         this.oldPrescriptionDrugList = oldPrescriptionDrugList;
         this.newPrescriptionDrugList = newPrescriptionDrugList;
     }
@@ -81,12 +89,12 @@ public class NoteDiagnosisDrugDto {
         this.newChronicDiagnosisList = newChronicDiagnosisList;
     }
 
-    public Prescription getOldPrescription() {
-        return oldPrescription;
+    public Prescription getPrescription() {
+        return prescription;
     }
 
-    public void setOldPrescription(Prescription oldPrescription) {
-        this.oldPrescription = oldPrescription;
+    public void setPrescription(Prescription prescription) {
+        this.prescription = prescription;
     }
 
     public List<PrescriptionDrug> getOldPrescriptionDrugList() {

@@ -1,9 +1,7 @@
 package com.harmonycloud.service;
 
-import com.harmonycloud.dto.ResponseDto;
+import com.harmonycloud.result.CimsResponseWrapper;
 import com.harmonycloud.util.TraceUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -11,27 +9,32 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 
 @Service
 public class SyncService {
 
-    private final Logger logger = LoggerFactory.getLogger(SyncService.class);
 
     @Autowired
     private RestProxyTemplate restProxyTemplate;
 
-    public ResponseDto save(URI uri, String token, Object body, HttpHeaders forwardHeaders) throws Exception {
+    @Autowired
+    private HttpServletRequest requests;
+
+    public CimsResponseWrapper save(URI uri, String token, Object body) throws Exception {
         try {
             HttpHeaders headers = new HttpHeaders();
-            if (forwardHeaders.get("user") != null)
-                headers.put("user", forwardHeaders.get("user"));
-            if (forwardHeaders.get("clinic") != null)
-                headers.put("clinic", forwardHeaders.get("clinic"));
+            if (requests.getHeader("user") != null) {
+                headers.set("user", requests.getHeader("user"));
+            }
+            if (requests.getHeader("clinic") != null) {
+                headers.set("clinic", requests.getHeader("clinic"));
+            }
             headers.set("Authorization", "Bearer " + token);
-            TraceUtil.addTraceForHttp(forwardHeaders, headers);
+            TraceUtil.addTraceForHttp(requests, headers);
             HttpEntity<Object> request = new HttpEntity<>(body, headers);
-            ResponseEntity<ResponseDto> response = restProxyTemplate.getRestTemplate().postForEntity(uri, request, ResponseDto.class);
+            ResponseEntity<CimsResponseWrapper> response = restProxyTemplate.getRestTemplate().postForEntity(uri, request, CimsResponseWrapper.class);
             return response.getBody();
         } catch (RestClientException e) {
             throw e;

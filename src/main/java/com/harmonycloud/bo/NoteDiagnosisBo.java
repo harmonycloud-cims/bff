@@ -7,8 +7,11 @@ import com.harmonycloud.entity.ClinicalNote;
 import java.util.List;
 
 public class NoteDiagnosisBo {
+
     private ClinicalNote clinicalNote;
+
     private List<AttendingDiagnosis> attendingDiagnosisList;
+
     private List<ChronicDiagnosis> chronicDiagnosisList;
 
     public NoteDiagnosisBo() {

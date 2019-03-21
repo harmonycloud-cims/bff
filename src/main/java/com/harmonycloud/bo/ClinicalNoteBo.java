@@ -3,7 +3,9 @@ package com.harmonycloud.bo;
 import com.harmonycloud.entity.ClinicalNote;
 
 public class ClinicalNoteBo {
+
     private ClinicalNote newClinicalNote;
+
     private ClinicalNote oldClinicalNote;
 
     public ClinicalNoteBo() {

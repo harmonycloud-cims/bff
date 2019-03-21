@@ -11,7 +11,9 @@ public enum ErrorMsgEnum {
     DIAGNOSIS_SAVE_ERROR("Save diagnosis  error"),
     DIAGNOSIS_UPDATE_ERROR("Update diagnosis error"),
     ORDER_SAVE_ERROR("Save Order note error"),
-    ORDER_UPDATE_ERROR("Update Order note error");
+    ORDER_UPDATE_ERROR("Update Order note error"),
+    FORMAT_ERROR("Unable to parse the proxy port number"),
+    AUTHENTICATION_ERROR("Could not set user authentication in security context");
 
     private String message;
 
