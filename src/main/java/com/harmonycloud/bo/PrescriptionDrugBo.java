@@ -7,7 +7,7 @@ import java.util.List;
 
 public class PrescriptionDrugBo {
 
-    private Prescription oldPrescription;
+    private Prescription prescription;
 
     private List<PrescriptionDrug> oldPrescriptionDrugList;
 
@@ -16,18 +16,18 @@ public class PrescriptionDrugBo {
     public PrescriptionDrugBo() {
     }
 
-    public PrescriptionDrugBo(Prescription oldPrescription, List<PrescriptionDrug> oldPrescriptionDrugList, List<PrescriptionDrug> newPrescriptionDrugList) {
-        this.oldPrescription = oldPrescription;
+    public PrescriptionDrugBo(Prescription prescription, List<PrescriptionDrug> oldPrescriptionDrugList, List<PrescriptionDrug> newPrescriptionDrugList) {
+        this.prescription = prescription;
         this.oldPrescriptionDrugList = oldPrescriptionDrugList;
         this.newPrescriptionDrugList = newPrescriptionDrugList;
     }
 
-    public Prescription getOldPrescription() {
-        return oldPrescription;
+    public Prescription getPrescription() {
+        return prescription;
     }
 
-    public void setOldPrescription(Prescription oldPrescription) {
-        this.oldPrescription = oldPrescription;
+    public void setPrescription(Prescription prescription) {
+        this.prescription = prescription;
     }
 
     public List<PrescriptionDrug> getOldPrescriptionDrugList() {

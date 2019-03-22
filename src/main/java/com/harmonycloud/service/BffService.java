@@ -44,17 +44,17 @@ public class BffService {
     /**
      * save clinical note and diagnosis
      *
-     * @param noteDiagnosisBo model
+     * @param dto model
      * @return
      * @throws Exception
      */
-    public void saveNoteDiagnosis(NoteDiagnosisBo noteDiagnosisBo) throws Exception {
+    public void saveNoteDiagnosis(NoteDiagnosisUpdateDto dto) throws Exception {
         String msg = LogUtil.getRequest(request) + ", information='";
 
         CimsResponseWrapper responseDto = null;
-        ClinicalNote clinicalNote = noteDiagnosisBo.getClinicalNote();
-        List<AttendingDiagnosis> attendingDiagnosisList = noteDiagnosisBo.getAttendingDiagnosisList();
-        List<ChronicDiagnosis> chronicDiagnosisList = noteDiagnosisBo.getChronicDiagnosisList();
+        ClinicalNote clinicalNote = dto.getClinicalNote();
+        List<AttendingDiagnosis> attendingDiagnosisList = dto.getAttendingDiagnosisList();
+        List<ChronicDiagnosis> chronicDiagnosisList = dto.getChronicDiagnosisList();
         UserPrincipal userDetails = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         String token = userDetails.getToken();

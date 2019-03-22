@@ -6,7 +6,7 @@ import com.harmonycloud.exception.BffException;
 import com.harmonycloud.result.CimsResponseWrapper;
 import com.harmonycloud.service.BffService;
 import com.harmonycloud.dto.NoteDiagnosisDto;
-import com.harmonycloud.bo.NoteDiagnosisBo;
+import com.harmonycloud.dto.NoteDiagnosisUpdateDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -26,19 +26,19 @@ public class BffController {
     /**
      * save clinical note and diagnosis
      *
-     * @param noteDiagnosisBo model
+     * @param dto model
      * @return
      * @throws Exception
      */
     @PostMapping("/insert")
     @ApiOperation(value = "save clinical note and diagnosis", httpMethod = "POST")
-    @ApiImplicitParam(name = "noteDiagnosisBo", value = "noteDiagnosisBo", paramType = "body", dataType = "NoteDiagnosisBo")
+    @ApiImplicitParam(name = "dto", value = "dto", paramType = "body", dataType = "NoteDiagnosisUpdateDto")
     @SagaStart
-    public CimsResponseWrapper<String> saveNoteDiagnosis(@RequestBody NoteDiagnosisBo noteDiagnosisBo) throws Exception {
-        if (noteDiagnosisBo == null || noteDiagnosisBo.getClinicalNote().getEncounterId() <= 0 || noteDiagnosisBo.getClinicalNote().getPatientId() <= 0) {
+    public CimsResponseWrapper<String> saveNoteDiagnosis(@RequestBody NoteDiagnosisUpdateDto dto) throws Exception {
+        if (dto == null || dto.getClinicalNote().getEncounterId() <= 0 || dto.getClinicalNote().getPatientId() <= 0) {
             throw new BffException(ErrorMsgEnum.PARAMETER_ERROR.getMessage());
         }
-        bffService.saveNoteDiagnosis(noteDiagnosisBo);
+        bffService.saveNoteDiagnosis(dto);
         return new CimsResponseWrapper<>(true, null, "Save success");
     }
 

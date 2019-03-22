@@ -1,4 +1,4 @@
-package com.harmonycloud.bo;
+package com.harmonycloud.dto;
 
 import com.harmonycloud.entity.AttendingDiagnosis;
 import com.harmonycloud.entity.ChronicDiagnosis;
@@ -6,7 +6,7 @@ import com.harmonycloud.entity.ClinicalNote;
 
 import java.util.List;
 
-public class NoteDiagnosisBo {
+public class NoteDiagnosisUpdateDto {
 
     private ClinicalNote clinicalNote;
 
@@ -14,10 +14,10 @@ public class NoteDiagnosisBo {
 
     private List<ChronicDiagnosis> chronicDiagnosisList;
 
-    public NoteDiagnosisBo() {
+    public NoteDiagnosisUpdateDto() {
     }
 
-    public NoteDiagnosisBo(ClinicalNote clinicalNote, List<AttendingDiagnosis> attendingDiagnosisList, List<ChronicDiagnosis> chronicDiagnosisList) {
+    public NoteDiagnosisUpdateDto(ClinicalNote clinicalNote, List<AttendingDiagnosis> attendingDiagnosisList, List<ChronicDiagnosis> chronicDiagnosisList) {
         this.clinicalNote = clinicalNote;
         this.attendingDiagnosisList = attendingDiagnosisList;
         this.chronicDiagnosisList = chronicDiagnosisList;
