@@ -28,6 +28,7 @@ import java.util.List;
 public class BffService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+
     @Autowired
     private SyncService syncService;
 
@@ -64,45 +65,43 @@ public class BffService {
         Jedis jedis = new Jedis(SPRING_REDIS_URL, SPRING_REDIS_PORT);
         JedisLock lock = new JedisLock(jedis, encounterId, 1000, 10000);
 
-        //lock function
-        if (jedis.exists(encounterId)) {
+        if (!lock.acquire()) {
             throw new BffException(ErrorMsgEnum.LOCKD.getMessage());
-        } else {
-            lock.acquire();
-            logger.info(msg + "save note and diagnosis locked '");
-            try {
-                //save clinical note
-                responseDto = syncService.save(config.getSaveClinicalNoteUri(), token, clinicalNote);
-                if (!responseDto.isSuccess()) {
-                    throw new BffException(ErrorMsgEnum.CLINICAL_SAVE_ERROR.getMessage());
-                }
-                logger.info(msg + "Save clinical note success '");
-
-                //save attending diagnosis
-                responseDto = syncService.save(config.getSaveAttendingDiagnosisUri(), token, attendingDiagnosisList);
-                if (!responseDto.isSuccess()) {
-                    throw new BffException(ErrorMsgEnum.DIAGNOSIS_SAVE_ERROR.getMessage());
-                }
-                logger.info(msg + "Save attending diagnosis success '");
-
-                //save chronic diagnosis
-                responseDto = syncService.save(config.getSaveChronicDiagnosisUri(), token, chronicDiagnosisList);
-                if (!responseDto.isSuccess()) {
-                    throw new BffException(ErrorMsgEnum.DIAGNOSIS_SAVE_ERROR.getMessage());
-                }
-                logger.info(msg + "Save chronic diagnosis success '");
-
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-                throw new IllegalStateException("URI excepstion.");
-            } finally {
-                lock.release();
-                logger.info(msg + "save note and diagnosis lock release '");
-
-            }
         }
+        logger.info(msg + "save note and diagnosis locked '");
+        try {
+            //save clinical note
+            responseDto = syncService.save(config.getSaveClinicalNoteUri(), token, clinicalNote);
+            if (!responseDto.isSuccess()) {
+                throw new BffException(ErrorMsgEnum.CLINICAL_SAVE_ERROR.getMessage());
+            }
+            logger.info(msg + "Save clinical note success '");
 
+            //save attending diagnosis
+            responseDto = syncService.save(config.getSaveAttendingDiagnosisUri(), token, attendingDiagnosisList);
+            if (!responseDto.isSuccess()) {
+                throw new BffException(ErrorMsgEnum.DIAGNOSIS_SAVE_ERROR.getMessage());
+            }
+            logger.info(msg + "Save attending diagnosis success '");
+
+            //save chronic diagnosis
+            responseDto = syncService.save(config.getSaveChronicDiagnosisUri(), token, chronicDiagnosisList);
+            if (!responseDto.isSuccess()) {
+                throw new BffException(ErrorMsgEnum.DIAGNOSIS_SAVE_ERROR.getMessage());
+            }
+            logger.info(msg + "Save chronic diagnosis success '");
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("URI excepstion.");
+        } finally {
+            lock.release();
+            logger.info(msg + "save note and diagnosis lock release '");
+
+        }
     }
+
+//    }
 
     /**
      * update clinical note and diagnosis
@@ -130,50 +129,49 @@ public class BffService {
         Jedis jedis = new Jedis(SPRING_REDIS_URL, SPRING_REDIS_PORT);
         JedisLock lock = new JedisLock(jedis, encounterId, 10000, 20000);
 
-        if (jedis.exists(encounterId)) {
+        if (!lock.acquire()) {
             throw new BffException(ErrorMsgEnum.LOCKD.getMessage());
-        } else {
-            lock.acquire();
-            logger.info(msg + "Update note and diagnosis locked '");
-
-            try {
-                newClinicalNote.setCreateBy(userDetails.getUsername());
-                newClinicalNote.setCreateDate(new Date());
-
-                //update clinical note
-                ClinicalNoteBo clinicalNoteBo = new ClinicalNoteBo(newClinicalNote, oldClinicalNote);
-                responseDto = syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo);
-                if (!responseDto.isSuccess()) {
-                    throw new BffException(ErrorMsgEnum.CLINICAL_UPDATE_ERROR.getMessage());
-                }
-                logger.info(msg + "Update clinical note success '");
-
-
-                //update attending diagnosis
-                AttendingDiagnosisBo attendingDiagnosisBo = new AttendingDiagnosisBo(newAttendingDiagnosisList, oldAttendingDiagnosisList);
-                responseDto = syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo);
-                if (!responseDto.isSuccess()) {
-                    throw new BffException(ErrorMsgEnum.DIAGNOSIS_UPDATE_ERROR.getMessage());
-                }
-                logger.info(msg + "Update attending diagnosis success '");
-
-                //update chronic diagnosis
-                ChronicDiagnosisBo chronicDiagnosisBo = new ChronicDiagnosisBo(newChronicDiagnosisList, oldChronicDiagnosisList);
-                responseDto = syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo);
-                if (!responseDto.isSuccess()) {
-                    throw new BffException(ErrorMsgEnum.DIAGNOSIS_UPDATE_ERROR.getMessage());
-                }
-                logger.info(msg + "Update chronic diagnosis success '");
-
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-                throw new IllegalStateException("URI excepstion.");
-            } finally {
-                lock.release();
-                logger.info(msg + "save note and diagnosis lock release '");
-
-            }
         }
+        logger.info(msg + "Update note and diagnosis locked '");
+
+        try {
+            newClinicalNote.setCreateBy(userDetails.getUsername());
+            newClinicalNote.setCreateDate(new Date());
+
+            //update clinical note
+            ClinicalNoteBo clinicalNoteBo = new ClinicalNoteBo(newClinicalNote, oldClinicalNote);
+            responseDto = syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo);
+            if (!responseDto.isSuccess()) {
+                throw new BffException(ErrorMsgEnum.CLINICAL_UPDATE_ERROR.getMessage());
+            }
+            logger.info(msg + "Update clinical note success '");
+
+
+            //update attending diagnosis
+            AttendingDiagnosisBo attendingDiagnosisBo = new AttendingDiagnosisBo(newAttendingDiagnosisList, oldAttendingDiagnosisList);
+            responseDto = syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo);
+            if (!responseDto.isSuccess()) {
+                throw new BffException(ErrorMsgEnum.DIAGNOSIS_UPDATE_ERROR.getMessage());
+            }
+            logger.info(msg + "Update attending diagnosis success '");
+
+            //update chronic diagnosis
+            ChronicDiagnosisBo chronicDiagnosisBo = new ChronicDiagnosisBo(newChronicDiagnosisList, oldChronicDiagnosisList);
+            responseDto = syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo);
+            if (!responseDto.isSuccess()) {
+                throw new BffException(ErrorMsgEnum.DIAGNOSIS_UPDATE_ERROR.getMessage());
+            }
+            logger.info(msg + "Update chronic diagnosis success '");
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("URI excepstion.");
+        } finally {
+            lock.release();
+            logger.info(msg + "save note and diagnosis lock release '");
+
+        }
+
 
     }
 
@@ -211,93 +209,100 @@ public class BffService {
 
         Jedis jedis = new Jedis(SPRING_REDIS_URL, SPRING_REDIS_PORT);
 
-        JedisLock lock = new JedisLock(jedis, encounterId, 1000, 10000);
+        JedisLock lock = new JedisLock(jedis, encounterId, 0, 10000);
 
 
-        if (jedis.exists(encounterId)) {
+        if (!lock.acquire()) {
             throw new BffException(ErrorMsgEnum.LOCKD.getMessage());
-        } else {
-            lock.acquire();
-            logger.info(msg + "Save note 、 diagnosis and prescription locked '");
+        }
 
-            try {
-                if (oldClinicalNote == null) {
-                    if (prescription.getPrescriptionId() == null) {
-                        //save note and diagnosis
-                        if (!syncService.save(config.getSaveClinicalNoteUri(), token, newClinicalNote).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.CLINICAL_SAVE_ERROR.getMessage());
-                        }
-                        if (!syncService.save(config.getSaveAttendingDiagnosisUri(), token, newAttendingDiagnosisList).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.DIAGNOSIS_SAVE_ERROR.getMessage());
-                        }
-                        if (!syncService.save(config.getSaveChronicDiagnosisUri(), token, newChronicDiagnosisList).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.DIAGNOSIS_SAVE_ERROR.getMessage());
-                        }
-                        //save prescirption
-                        if (!syncService.save(config.getSavePrescriptionUri(), token, prescriptionBo).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.ORDER_SAVE_ERROR.getMessage());
-                        }
-                    } else {
-                        //save note and diagnosis
-                        if (!syncService.save(config.getSaveClinicalNoteUri(), token, newClinicalNote).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.CLINICAL_SAVE_ERROR.getMessage());
-                        }
-                        if (!syncService.save(config.getSaveAttendingDiagnosisUri(), token, newAttendingDiagnosisList).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.DIAGNOSIS_SAVE_ERROR.getMessage());
-                        }
-                        if (!syncService.save(config.getSaveChronicDiagnosisUri(), token, newChronicDiagnosisList).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.DIAGNOSIS_SAVE_ERROR.getMessage());
-                        }
-                        //update prescirption
-                        if (!syncService.save(config.getUpdatePrescriptionUri(), token, prescriptionDrugBo).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.ORDER_UPDATE_ERROR.getMessage());
-                        }
+        logger.info(msg + "Save note 、diagnosis and prescription locked '");
+
+        try {
+            if (oldClinicalNote == null) {
+                if (prescription.getPrescriptionId() == null) {
+                    //save note and diagnosis
+                    if (!syncService.save(config.getSaveClinicalNoteUri(), token, newClinicalNote).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.CLINICAL_SAVE_ERROR.getMessage());
+                    }
+                    if (!syncService.save(config.getSaveAttendingDiagnosisUri(), token, newAttendingDiagnosisList).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.DIAGNOSIS_SAVE_ERROR.getMessage());
+                    }
+                    if (!syncService.save(config.getSaveChronicDiagnosisUri(), token, newChronicDiagnosisList).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.DIAGNOSIS_SAVE_ERROR.getMessage());
+                    }
+                    //save prescirption
+                    if (!syncService.save(config.getSavePrescriptionUri(), token, prescriptionBo).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.ORDER_SAVE_ERROR.getMessage());
                     }
                 } else {
-                    if (prescription.getPrescriptionId() == null) {
-
-                        //update note and diagnosis
-                        if (!syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.CLINICAL_UPDATE_ERROR.getMessage());
-                        }
-                        if (!syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.DIAGNOSIS_UPDATE_ERROR.getMessage());
-                        }
-                        if (!syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.DIAGNOSIS_UPDATE_ERROR.getMessage());
-                        }
-                        //save prescirption
-                        if (!syncService.save(config.getSavePrescriptionUri(), token, prescriptionBo).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.ORDER_SAVE_ERROR.getMessage());
-                        }
-                    } else {
-
-                        //update note and diagnosis
-                        if (!syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.CLINICAL_UPDATE_ERROR.getMessage());
-                        }
-
-                        if (!syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.DIAGNOSIS_UPDATE_ERROR.getMessage());
-                        }
-
-                        if (!syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.DIAGNOSIS_UPDATE_ERROR.getMessage());
-                        }
-                        //update prescirption
-                        if (!syncService.save(config.getUpdatePrescriptionUri(), token, prescriptionDrugBo).isSuccess()) {
-                            throw new BffException(ErrorMsgEnum.ORDER_UPDATE_ERROR.getMessage());
-                        }
+                    //save note and diagnosis
+                    if (!syncService.save(config.getSaveClinicalNoteUri(), token, newClinicalNote).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.CLINICAL_SAVE_ERROR.getMessage());
+                    }
+                    if (!syncService.save(config.getSaveAttendingDiagnosisUri(), token, newAttendingDiagnosisList).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.DIAGNOSIS_SAVE_ERROR.getMessage());
+                    }
+                    if (!syncService.save(config.getSaveChronicDiagnosisUri(), token, newChronicDiagnosisList).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.DIAGNOSIS_SAVE_ERROR.getMessage());
+                    }
+                    //update prescirption
+                    if (!syncService.save(config.getUpdatePrescriptionUri(), token, prescriptionDrugBo).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.ORDER_UPDATE_ERROR.getMessage());
                     }
                 }
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-                throw new IllegalStateException("URI excepstion.");
-            } finally {
-                lock.release();
-                logger.info(msg + "Save note 、 diagnosis and prescription lock release '");
+            } else {
+                if (prescription.getPrescriptionId() == null) {
 
+                    //update note and diagnosis
+                    if (!syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.CLINICAL_UPDATE_ERROR.getMessage());
+                    }
+                    if (!syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.DIAGNOSIS_UPDATE_ERROR.getMessage());
+                    }
+                    if (!syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.DIAGNOSIS_UPDATE_ERROR.getMessage());
+                    }
+                    //save prescirption
+                    if (!syncService.save(config.getSavePrescriptionUri(), token, prescriptionBo).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.ORDER_SAVE_ERROR.getMessage());
+                    }
+                } else {
+
+                    //update note and diagnosis
+                    if (!syncService.save(config.getUpdateClinicalNoteUri(), token, clinicalNoteBo).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.CLINICAL_UPDATE_ERROR.getMessage());
+                    }
+
+                    if (!syncService.save(config.getUpdateAttendingDiagnosisUri(), token, attendingDiagnosisBo).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.DIAGNOSIS_UPDATE_ERROR.getMessage());
+                    }
+
+                    if (!syncService.save(config.getUpdateChronicDiagnosisUri(), token, chronicDiagnosisBo).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.DIAGNOSIS_UPDATE_ERROR.getMessage());
+                    }
+                    //update prescirption
+                    if (!syncService.save(config.getUpdatePrescriptionUri(), token, prescriptionDrugBo).isSuccess()) {
+                        throw new BffException(ErrorMsgEnum.ORDER_UPDATE_ERROR.getMessage());
+                    }
+                }
             }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("URI excepstion.");
+        } finally {
+            lock.release();
+            logger.info(msg + "Save note 、 diagnosis and prescription lock release '");
         }
+    }
+
+
+    public static void main(String args[]) throws Exception {
+        Jedis jedis = new Jedis("10.10.103.61", 33011);
+        JedisLock lock = new JedisLock(jedis, "1", 1000, 10000);
+
+        lock.acquire();
+        lock.release();
     }
 }
