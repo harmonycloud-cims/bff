@@ -22,10 +22,10 @@ spec:
           env:
             - name: TZ
               value: Asia/Shanghai
-          image: <image-name>
+          image: docker-registry.default.svc:5000/dhcims-msapoc-dev/bff:1
           imagePullPolicy: Always
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               protocol: TCP
           resources:
             limits:
@@ -34,6 +34,7 @@ spec:
             requests:
               cpu: 200m
               memory: 512Mi
+          volumeMounts:
             - mountPath: /opt/webserver/lib/application.properties
               name: application-config
               subPath: application.properties
