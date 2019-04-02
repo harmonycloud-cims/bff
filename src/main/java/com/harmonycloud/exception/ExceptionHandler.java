@@ -25,6 +25,7 @@ public class ExceptionHandler {
     public CimsResponseWrapper<Object> handler(Throwable e) {
         String msg = LogUtil.getRequest(request);
         logger.error(msg + ", information='" + e.getMessage() + '\'');
+        e.printStackTrace();
         if (e instanceof BffException) {
             return new CimsResponseWrapper<>(false, e.getMessage(), null);
         }
